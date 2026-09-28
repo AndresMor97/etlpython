@@ -3,7 +3,7 @@ import requests
 import time
 import os
 from flask import Flask, request, jsonify, render_template
-from datetime import datetime
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 
@@ -44,7 +44,7 @@ def cargar_datos():
     
     # Actualizar la memoria con los nuevos datos
     datos_etl = datos
-    ultima_actualizacion = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ultima_actualizacion = datetime.now(timezone.utc).isoformat()
     
     # Aquí se imprime en la consola del servidor lo que llegó del ETL
     print(f"Éxito: Se recibieron {len(datos)} registros de sucursales consolidadas.")

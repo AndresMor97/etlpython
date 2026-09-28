@@ -70,12 +70,23 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <div class="flex items-center">
+                    <div class="flex items-center w-full">
                         <div class="p-3 rounded-full bg-purple-100 text-purple-600">
                             <i class="fas fa-clock text-xl"></i>
                         </div>
-                        <div class="ml-4">
-                            <p class="mb-2 text-sm font-medium text-gray-500">Última Actualización</p>
+                        <div class="ml-4 flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="text-sm font-medium text-gray-500">Última Actualización</p>
+                                <select id="tz-select" class="text-xs bg-gray-50 border border-gray-200 rounded px-1 py-0.5 text-gray-600 focus:outline-none">
+                                    <option value="-6">UTC -6 (México DF)</option>
+                                    <option value="-5" selected>UTC -5 (Colombia/Perú)</option>
+                                    <option value="-4">UTC -4 (Chile/Bolivia)</option>
+                                    <option value="-3">UTC -3 (Argentina)</option>
+                                    <option value="0">UTC +0 (Londres)</option>
+                                    <option value="1">UTC +1 (Madrid)</option>
+                                    <option value="2">UTC +2 (Atenas)</option>
+                                </select>
+                            </div>
                             <p class="text-lg font-bold text-gray-800" id="last-update">--</p>
                         </div>
                     </div>
@@ -120,8 +131,35 @@
         const datos_etl = {{ datos | tojson }};
         const ultima_act = "{{ ultima_actualizacion }}";
 
+        function updateTime() {
+            if (!ultima_act) return;
+            const dateUTC = new Date(ultima_act);
+            
+            if (isNaN(dateUTC)) {
+                document.getElementById('last-update').innerText = ultima_act;
+                return;
+            }
+            
+            const offset = parseInt(document.getElementById('tz-select').value);
+            const localDate = new Date(dateUTC.getTime() + offset * 3600 * 1000);
+            
+            const yyyy = localDate.getUTCFullYear();
+            const mm = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(localDate.getUTCDate()).padStart(2, '0');
+            const hh = String(localDate.getUTCHours()).padStart(2, '0');
+            const min = String(localDate.getUTCMinutes()).padStart(2, '0');
+            const ss = String(localDate.getUTCSeconds()).padStart(2, '0');
+            
+            const ampm = localDate.getUTCHours() >= 12 ? 'PM' : 'AM';
+            const hh12 = String(localDate.getUTCHours() % 12 || 12).padStart(2, '0');
+            
+            document.getElementById('last-update').innerText = `${yyyy}-${mm}-${dd} ${hh12}:${min}:${ss} ${ampm}`;
+        }
+
+        document.getElementById('tz-select').addEventListener('change', updateTime);
+
         if (ultima_act) {
-            document.getElementById('last-update').innerText = ultima_act;
+            updateTime();
         }
 
         if (datos_etl && datos_etl.length > 0) {
