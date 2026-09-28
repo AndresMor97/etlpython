@@ -10,7 +10,8 @@ USUARIO = 'ANDRESS17'
 PASSWORD = '97061705426'
 JAR_PATH = "jt400-11.0.jar"
 JDBC_URL = "jdbc:as400://pub400.com"
-API_URL = "http://127.0.0.1:8080/api/cargar"
+## API_URL = "http://127.0.0.1:8080/api/cargar"
+API_URL = "https://etlpython.onrender.com/api/cargar"
 
 def extraer_datos():
     """Conecta al AS/400 y extrae los datos crudos."""
