@@ -55,11 +55,11 @@ def cargar_datos():
         "registros_procesados": len(datos)
     }), 200
 
+# Iniciar el hilo de fondo para mantener vivo el servicio, independientemente de si se usa gunicorn
+t = threading.Thread(target=keep_alive)
+t.daemon = True
+t.start()
+
 if __name__ == '__main__':
-    # Iniciar el hilo de fondo para mantener vivo el servicio
-    t = threading.Thread(target=keep_alive)
-    t.daemon = True
-    t.start()
-    
     # Puerto 8080 estándar para despliegues web
     app.run(host='0.0.0.0', port=8080)
