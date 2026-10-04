@@ -1,34 +1,39 @@
 import pandas as pd
-import jaydebeapi
+import psycopg2
 import requests
 import time
 
 # ==========================================
 # CONFIGURACIÓN GLOBAL
 # ==========================================
-USUARIO = 'ANDRESS17'
-PASSWORD = '97061705426'
-JAR_PATH = "jt400-11.0.jar"
-JDBC_URL = "jdbc:as400://pub400.com"
+DB_HOST = 'localhost' # Modifica esto con el host de tu base de datos
+DB_PORT = '5432'      # Puerto por defecto de PostgreSQL
+DB_NAME = 'finanzas'  # Base de datos destino
+DB_USER = 'tu_usuario'       # Coloca aquí tu usuario
+DB_PASSWORD = 'tu_password'  # Coloca aquí tu contraseña
+
 ## API_URL = "http://127.0.0.1:8080/api/cargar"
 API_URL = "https://etlpython.onrender.com/api/cargar"
 
 def extraer_datos():
-    """Conecta al AS/400 y extrae los datos crudos."""
+    """Conecta a PostgreSQL y extrae los datos crudos."""
     print("\n" + "="*50)
-    print("FASE 1: EXTRACT (IBM AS/400) ")
+    print("FASE 1: EXTRACT (POSTGRESQL) ")
     print("="*50)
-    print("[*] Estableciendo conexión JDBC con PUB400.com...")
+    print("[*] Estableciendo conexión con la base de datos PostgreSQL 'finanzas'...")
     
     try:
-        conn = jaydebeapi.connect(
-            "com.ibm.as400.access.AS400JDBCDriver",
-            JDBC_URL,
-            [USUARIO, PASSWORD],
-            JAR_PATH
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD
         )
-        query = "SELECT * FROM ANDRESS171.TRANSACCIONES"
-        df_bruto = pd.read_sql(query, conn)
+        query = "SELECT * FROM transacciones"
+        # pd.read_sql requiere a veces SQLAlchemy para evitar warnings, 
+        # pero funciona nativamente con conexiones DBAPI como psycopg2
+        df_bruto = pd.read_sql_query(query, conn)
         conn.close()
         
         print(f"[+] Conexión exitosa. Se extrajeron {len(df_bruto)} registros.\n")
