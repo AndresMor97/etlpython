@@ -6,11 +6,11 @@ import time
 # ==========================================
 # CONFIGURACIÓN GLOBAL
 # ==========================================
-DB_HOST = 'localhost' # Modifica esto con el host de tu base de datos
+DB_HOST = '192.168.122.10' # Host de tu base de datos
 DB_PORT = '5432'      # Puerto por defecto de PostgreSQL
 DB_NAME = 'finanzas'  # Base de datos destino
-DB_USER = 'tu_usuario'       # Coloca aquí tu usuario
-DB_PASSWORD = 'tu_password'  # Coloca aquí tu contraseña
+DB_USER = 'postgres'       # Usuario
+DB_PASSWORD = '123456'  # Contraseña
 
 ## API_URL = "http://127.0.0.1:8080/api/cargar"
 API_URL = "https://etlpython.onrender.com/api/cargar"
@@ -34,6 +34,11 @@ def extraer_datos():
         # pd.read_sql requiere a veces SQLAlchemy para evitar warnings, 
         # pero funciona nativamente con conexiones DBAPI como psycopg2
         df_bruto = pd.read_sql_query(query, conn)
+        
+        # Convertimos los nombres de las columnas a mayúsculas porque en PostgreSQL
+        # por defecto se manejan en minúsculas y el código espera 'MONTO', 'ESTADO', etc.
+        df_bruto.columns = df_bruto.columns.str.upper()
+        
         conn.close()
         
         print(f"[+] Conexión exitosa. Se extrajeron {len(df_bruto)} registros.\n")
